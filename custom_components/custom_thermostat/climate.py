@@ -174,6 +174,7 @@ class CustomThermostat(ClimateEntity, RestoreEntity):
 
         self._active = False
         self._slave_override = False
+        self._largest_lookback_period = max([p.minutes for p in self._presets.values()])
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
@@ -498,6 +499,8 @@ class CustomThermostat(ClimateEntity, RestoreEntity):
             self._slave_target_temp = slave_target
             await self._async_set_slave_target(slave_target)
 
+            self._trim_motion_history()
+
     async def _async_set_slave_target(self, target):
         thermostat = self._thermostat()
         if thermostat is None:
@@ -566,6 +569,14 @@ class CustomThermostat(ClimateEntity, RestoreEntity):
         for k, v in final_weights.items():
             accum += self._sensor_temps.get(k) * v
         return accum
+
+    def _trim_motion_history(self):
+        now = datetime.utcnow()
+        first_slot = quantize_minute(now - timedelta(minutes=self._largest_lookback_period))
+        new_history = {}
+        for k, history in self._motion_history.items():
+            new_history[k] = filter(lambda d: d > first_slot, history)
+        self._motion_history = new_history
 
     def _sensor_entity_ids(self):
         ids = set()
