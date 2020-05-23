@@ -1,0 +1,4 @@
+*.py[cod]
+.mypy_cache
+.vscode
+__pycache__
