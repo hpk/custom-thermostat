@@ -1,0 +1,1 @@
+"""The Custom Thermostat component"""
