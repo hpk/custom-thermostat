@@ -1,0 +1,10 @@
+{
+    "domain": "custom_thermostat",
+    "name": "Custom Thermostat",
+    "documentation": "https://github.com/hpk/custom-thermostat",
+    "issue_tracker": "https://github.com/hpk/custom-thermostat/issues",
+    "dependencies": [],
+    "after_dependencies": [],
+    "codeowners": ["@hpk"],
+    "requirements": []
+  }
