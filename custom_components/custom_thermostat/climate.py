@@ -64,6 +64,7 @@ from .preset import (
     METHOD_MOTION,
     METHOD_WEIGHTED_MOTION,
 )
+from .sensor import CalculatedTemperature
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -115,22 +116,26 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     presets = build_presets(config.get(CONF_PRESETS))
     unit = hass.config.units.temperature_unit
 
+    thermostat = CustomThermostat(
+        name,
+        heat_thermostat,
+        cool_thermostat,
+        min_temp,
+        max_temp,
+        target_temp,
+        initial_hvac_mode,
+        presets,
+        initial_preset,
+        precision,
+        deadband,
+        unit,
+    )
+    tempsensor = CalculatedTemperature(thermostat)
+
     async_add_entities(
         [
-            CustomThermostat(
-                name,
-                heat_thermostat,
-                cool_thermostat,
-                min_temp,
-                max_temp,
-                target_temp,
-                initial_hvac_mode,
-                presets,
-                initial_preset,
-                precision,
-                deadband,
-                unit,
-            )
+            thermostat,
+            tempsensor,
         ]
     )
 
