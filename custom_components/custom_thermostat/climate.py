@@ -590,8 +590,8 @@ class CustomThermostat(ClimateEntity, RestoreEntity):
         first_slot = quantize_minute(now - timedelta(minutes=self._largest_lookback_period))
         new_history = {}
         for k, history in self._motion_history.items():
-            new_history[k] = filter(lambda d: d > first_slot, history)
-        self._motion_history = list(new_history)
+            new_history[k] = list(filter(lambda d: d > first_slot, history))
+        self._motion_history = new_history
 
     def _sensor_entity_ids(self):
         ids = set()
