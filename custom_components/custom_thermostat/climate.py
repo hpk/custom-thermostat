@@ -591,7 +591,7 @@ class CustomThermostat(ClimateEntity, RestoreEntity):
         new_history = {}
         for k, history in self._motion_history.items():
             new_history[k] = filter(lambda d: d > first_slot, history)
-        self._motion_history = new_history
+        self._motion_history = list(new_history)
 
     def _sensor_entity_ids(self):
         ids = set()
