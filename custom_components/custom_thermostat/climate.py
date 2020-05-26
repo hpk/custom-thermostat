@@ -64,7 +64,6 @@ from .preset import (
     METHOD_MOTION,
     METHOD_WEIGHTED_MOTION,
 )
-from .sensor import CalculatedTemperature
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -130,7 +129,6 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         deadband,
         unit,
     )
-    tempsensor = CalculatedTemperature(thermostat)
 
     async_add_entities(
         [
@@ -180,6 +178,7 @@ class CustomThermostat(ClimateEntity, RestoreEntity):
         self._active = False
         self._slave_override = False
         self._largest_lookback_period = max([p.minutes for p in self._presets.values()])
+        self._attrs: Dict[str, object] = {}
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
@@ -328,6 +327,10 @@ class CustomThermostat(ClimateEntity, RestoreEntity):
     @property
     def supported_features(self):
         return SUPPORT_TARGET_TEMPERATURE | SUPPORT_PRESET_MODE
+
+    @property
+    def device_state_attributes(self):
+        return self._attrs
 
     async def async_update(self):
         await self._async_set_slaves_mode()
@@ -569,6 +572,14 @@ class CustomThermostat(ClimateEntity, RestoreEntity):
         final_weights = {}
         for k, v in raw_weights.items():
             final_weights[k] = v / total_raw_weight
+
+        weights_attr = self._attrs.get("sensor_weights", {})
+        for k in weights_attr.keys():
+            weights_attr[k] = 0
+
+        for k, v in final_weights.items():
+            weights_attr[k] = v
+        self._attrs["sensor_weights"] = weights_attr
 
         accum = 0
         for k, v in final_weights.items():
